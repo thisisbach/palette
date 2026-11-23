@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><!-- sparkle-sign-warning:
+IMPORTANT: This file was signed by Sparkle. Any modifications to this file requires re-signing this file with generate_appcast or sign_update! The signed signature will be embedded at the end of this file.
+--><rss xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle" version="2.0">
+  <channel>
+    <title>Palette updates</title>
+    <link>https://github.com/thisisbach/palette</link>
+    <description>Stable Palette releases for macOS.</description>
+    <item>
+      <title>Palette 1.2</title>
+      <link>https://github.com/thisisbach/palette/releases/tag/v1.2</link>
+      <pubDate>Mon, 23 Nov 2026 13:03:10 +0000</pubDate>
+      <sparkle:version>1.2</sparkle:version>
+      <sparkle:shortVersionString>1.2</sparkle:shortVersionString>
+      <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
+      <description>Palette 1.2 is available. See the release page for changes.</description>
+      <enclosure url="https://github.com/thisisbach/palette/releases/download/v1.2/Palette-1.2-macOS-universal.zip" length="1594915" type="application/octet-stream" sparkle:edSignature="rwHZKaXnxoWoXDDqEi8UohlxWeuLy7qYig7riOaWWfZmGnlOLUGH5vQMTISacb+UwDMr7PTB7NEPfq8bl740Cw=="></enclosure>
+    </item>
+  </channel>
+</rss><!-- sparkle-signatures:
+edSignature: WvmBo2sPYDb9y/aksvRL1HBN/y5m6JrpOvHJfeQCPzDo5GPgdeKU6E3KNx3+yCgBS51CH5E6/4adZhmeb/udCw==
+length: 1320
+-->
