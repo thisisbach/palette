@@ -11,3 +11,7 @@ xcuserdata/
 *.p12
 *.mobileprovision
 *.provisionprofile
+Vendor/
+.secrets/
+dist/
+__pycache__/

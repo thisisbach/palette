@@ -1,0 +1,39 @@
+name: Build and publish app updates
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing stable release tag (for example v1.2.1)
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+concurrency:
+  group: palette-stable-release
+  cancel-in-progress: false
+
+jobs:
+  release:
+    if: github.event_name == 'workflow_dispatch' || (!github.event.release.draft && !github.event.release.prerelease)
+    runs-on: macos-15
+    timeout-minutes: 30
+    env:
+      RELEASE_TAG: ${{ github.event.release.tag_name || inputs.tag }}
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ env.RELEASE_TAG }}
+      - name: Test
+        run: ./Tests/run.sh
+      - name: Build universal app and package
+        run: ./Scripts/prepare-release.sh "$RELEASE_TAG"
+      - name: Sign update, upload assets, and publish feed
+        env:
+          SPARKLE_PRIVATE_KEY: ${{ secrets.SPARKLE_PRIVATE_KEY }}
+        run: python3 Scripts/publish-release.py "$RELEASE_TAG"

@@ -16,9 +16,11 @@ import SwiftUI
     private var popover: NSPopover!
     private var window: NSWindow!
     private var store: PaletteStore!
+    private var updater: AppUpdater!
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         store = PaletteStore()
+        updater = AppUpdater()
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
         if let button = statusItem.button {
             button.image = NSImage(systemSymbolName: "swatchpalette", accessibilityDescription: "Palette")
@@ -28,12 +30,12 @@ import SwiftUI
         }
         popover = NSPopover()
         popover.behavior = .transient
-        popover.contentViewController = NSHostingController(rootView: QuickView(store: store, openLibrary: { [weak self] in self?.showLibrary() }))
+        popover.contentViewController = NSHostingController(rootView: QuickView(store: store, updater: updater, openLibrary: { [weak self] in self?.showLibrary() }, checkForUpdates: { [weak self] in self?.checkForUpdates() }))
         window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 920, height: 610), styleMask: [.titled, .closable, .miniaturizable, .resizable], backing: .buffered, defer: false)
         window.title = "Palette"
         window.isReleasedWhenClosed = false
         window.setFrameAutosaveName("PaletteLibrary")
-        window.contentView = NSHostingView(rootView: LibraryView(store: store))
+        window.contentView = NSHostingView(rootView: LibraryView(store: store, updater: updater, checkForUpdates: { [weak self] in self?.checkForUpdates() }))
         window.center()
         setupMenu()
         showLibrary()
@@ -45,6 +47,14 @@ import SwiftUI
         menu.addItem(appItem)
         let appMenu = NSMenu()
         appMenu.addItem(withTitle: "About Palette", action: #selector(NSApplication.orderFrontStandardAboutPanel(_:)), keyEquivalent: "")
+        for (title, action) in [
+            ("Check for Updates…", #selector(AppUpdater.checkForUpdates(_:))),
+            ("Check automatically", #selector(AppUpdater.toggleAutomaticChecks(_:))),
+            ("Install updates automatically", #selector(AppUpdater.toggleAutomaticInstallation(_:)))
+        ] {
+            let item = appMenu.addItem(withTitle: title, action: action, keyEquivalent: "")
+            item.target = updater
+        }
         appMenu.addItem(.separator())
         appMenu.addItem(withTitle: "Quit Palette", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q")
         appItem.submenu = appMenu
@@ -70,6 +80,11 @@ import SwiftUI
         popover.performClose(nil)
         window.makeKeyAndOrderFront(nil)
         NSApp.activate(ignoringOtherApps: true)
+    }
+
+    private func checkForUpdates() {
+        popover.performClose(nil)
+        updater.checkForUpdates()
     }
 
     func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool { showLibrary(); return true }

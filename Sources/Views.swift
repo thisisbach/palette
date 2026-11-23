@@ -3,6 +3,8 @@ import AppKit
 
 struct LibraryView: View {
     @ObservedObject var store: PaletteStore
+    @ObservedObject var updater: AppUpdater
+    let checkForUpdates: () -> Void
     @State private var search = ""
     @State private var selection: UUID?
     @State private var editing: Palette?
@@ -76,6 +78,8 @@ struct LibraryView: View {
                     Menu {
                         Button("Import palettes…", action: store.importPalettes)
                         Button("Export palettes…", action: store.exportPalettes).disabled(store.palettes.isEmpty)
+                        Divider()
+                        UpdateCommands(updater: updater, check: checkForUpdates)
                     } label: { Image(systemName: "ellipsis.circle") }.menuStyle(.borderlessButton).fixedSize()
                 }.font(.caption).foregroundStyle(.secondary).padding(12)
                 .help(store.cloudEnabled ? "iCloud propagates changes automatically while signed in to your Apple Account." : "This build saves locally. iCloud requires an Apple developer signed build with the included entitlement.")
@@ -221,7 +225,9 @@ struct EditorView: View {
 
 struct QuickView: View {
     @ObservedObject var store: PaletteStore
+    @ObservedObject var updater: AppUpdater
     let openLibrary: () -> Void
+    let checkForUpdates: () -> Void
     @State private var copied: String?
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -260,6 +266,10 @@ struct QuickView: View {
             HStack {
                 Text(copied ?? store.syncStatus).font(.caption).foregroundStyle(.secondary)
                 Spacer()
+                Menu {
+                    UpdateCommands(updater: updater, check: checkForUpdates)
+                } label: { Image(systemName: "gearshape") }
+                    .menuStyle(.borderlessButton).fixedSize().help("Updates")
                 Button("Quit") { NSApp.terminate(nil) }.buttonStyle(.borderless)
             }
         }.padding(16).frame(width: 320)

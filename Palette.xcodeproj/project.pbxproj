@@ -5,11 +5,11 @@
  objectVersion = 56;
  objects = {
  A00000000000000000000001 = {isa = PBXProject; attributes = {LastUpgradeCheck = 1600; TargetAttributes = {A00000000000000000000002 = {CreatedOnToolsVersion = 16.0; SystemCapabilities = {com.apple.iCloud = {enabled = 1;};};};};}; buildConfigurationList = A00000000000000000000010; compatibilityVersion = "Xcode 14.0"; developmentRegion = en; knownRegions = (en, Base); mainGroup = A00000000000000000000003; productRefGroup = A00000000000000000000004; projectDirPath = ""; projectRoot = ""; targets = (A00000000000000000000002);};
- A00000000000000000000002 = {isa = PBXNativeTarget; buildConfigurationList = A00000000000000000000011; buildPhases = (A00000000000000000000005, A00000000000000000000006); buildRules = (); dependencies = (); name = Palette; productName = Palette; productReference = A00000000000000000000007; productType = "com.apple.product-type.application";};
- A00000000000000000000003 = {isa = PBXGroup; children = (A00000000000000000000020, A00000000000000000000021, A00000000000000000000022, A00000000000000000000023, A00000000000000000000024, A00000000000000000000025, A00000000000000000000026, A00000000000000000000004); sourceTree = "<group>";};
+ A00000000000000000000002 = {isa = PBXNativeTarget; buildConfigurationList = A00000000000000000000011; buildPhases = (A00000000000000000000005, A00000000000000000000008, A00000000000000000000006, A00000000000000000000009); buildRules = (); dependencies = (); name = Palette; productName = Palette; productReference = A00000000000000000000007; productType = "com.apple.product-type.application";};
+ A00000000000000000000003 = {isa = PBXGroup; children = (A00000000000000000000020, A00000000000000000000021, A00000000000000000000022, A00000000000000000000023, A00000000000000000000024, A00000000000000000000025, A00000000000000000000026, A00000000000000000000027, A00000000000000000000028, A00000000000000000000029, A00000000000000000000004); sourceTree = "<group>";};
  A00000000000000000000004 = {isa = PBXGroup; children = (A00000000000000000000007); name = Products; sourceTree = "<group>";};
- A00000000000000000000005 = {isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (A00000000000000000000030, A00000000000000000000031, A00000000000000000000032, A00000000000000000000033); runOnlyForDeploymentPostprocessing = 0;};
- A00000000000000000000006 = {isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = (A00000000000000000000034); runOnlyForDeploymentPostprocessing = 0;};
+ A00000000000000000000005 = {isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (A00000000000000000000030, A00000000000000000000031, A00000000000000000000032, A00000000000000000000033, A00000000000000000000035); runOnlyForDeploymentPostprocessing = 0;};
+ A00000000000000000000006 = {isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = (A00000000000000000000034, A00000000000000000000038); runOnlyForDeploymentPostprocessing = 0;};
  A00000000000000000000007 = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Palette.app; sourceTree = BUILT_PRODUCTS_DIR;};
  A00000000000000000000020 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sources/App.swift; sourceTree = "<group>";};
  A00000000000000000000021 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sources/Models.swift; sourceTree = "<group>";};
@@ -23,12 +23,21 @@
  A00000000000000000000032 = {isa = PBXBuildFile; fileRef = A00000000000000000000022;};
  A00000000000000000000033 = {isa = PBXBuildFile; fileRef = A00000000000000000000023;};
  A00000000000000000000034 = {isa = PBXBuildFile; fileRef = A00000000000000000000026;};
+ A00000000000000000000008 = {isa = PBXFrameworksBuildPhase; buildActionMask = 2147483647; files = (A00000000000000000000036); runOnlyForDeploymentPostprocessing = 0;};
+ A00000000000000000000009 = {isa = PBXCopyFilesBuildPhase; buildActionMask = 2147483647; dstPath = ""; dstSubfolderSpec = 10; files = (A00000000000000000000037); name = "Embed Frameworks"; runOnlyForDeploymentPostprocessing = 0;};
+ A00000000000000000000027 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sources/Updater.swift; sourceTree = "<group>";};
+ A00000000000000000000028 = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Vendor/Sparkle/Sparkle.framework; sourceTree = "<group>";};
+ A00000000000000000000029 = {isa = PBXFileReference; lastKnownFileType = text; path = Resources/Sparkle-LICENSE.txt; sourceTree = "<group>";};
+ A00000000000000000000035 = {isa = PBXBuildFile; fileRef = A00000000000000000000027;};
+ A00000000000000000000036 = {isa = PBXBuildFile; fileRef = A00000000000000000000028;};
+ A00000000000000000000037 = {isa = PBXBuildFile; fileRef = A00000000000000000000028; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy);};};
+ A00000000000000000000038 = {isa = PBXBuildFile; fileRef = A00000000000000000000029;};
  A00000000000000000000010 = {isa = XCConfigurationList; buildConfigurations = (A00000000000000000000040, A00000000000000000000041); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release;};
  A00000000000000000000011 = {isa = XCConfigurationList; buildConfigurations = (A00000000000000000000042, A00000000000000000000043); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release;};
  A00000000000000000000040 = {isa = XCBuildConfiguration; buildSettings = {MACOSX_DEPLOYMENT_TARGET = 14.0; SDKROOT = macosx; SWIFT_VERSION = 5.0;}; name = Debug;};
  A00000000000000000000041 = {isa = XCBuildConfiguration; buildSettings = {MACOSX_DEPLOYMENT_TARGET = 14.0; SDKROOT = macosx; SWIFT_VERSION = 5.0;}; name = Release;};
- A00000000000000000000042 = {isa = XCBuildConfiguration; buildSettings = {CODE_SIGN_ENTITLEMENTS = Palette.entitlements; CODE_SIGN_STYLE = Automatic; COMBINE_HIDPI_IMAGES = YES; CURRENT_PROJECT_VERSION = 1; ENABLE_HARDENED_RUNTIME = YES; GENERATE_INFOPLIST_FILE = NO; INFOPLIST_FILE = Info.plist; PRODUCT_BUNDLE_IDENTIFIER = app.palette.mac; PRODUCT_NAME = "$(TARGET_NAME)"; SWIFT_OPTIMIZATION_LEVEL = "-Onone";}; name = Debug;};
- A00000000000000000000043 = {isa = XCBuildConfiguration; buildSettings = {CODE_SIGN_ENTITLEMENTS = Palette.entitlements; CODE_SIGN_STYLE = Automatic; COMBINE_HIDPI_IMAGES = YES; CURRENT_PROJECT_VERSION = 1; ENABLE_HARDENED_RUNTIME = YES; GENERATE_INFOPLIST_FILE = NO; INFOPLIST_FILE = Info.plist; PRODUCT_BUNDLE_IDENTIFIER = app.palette.mac; PRODUCT_NAME = "$(TARGET_NAME)"; SWIFT_OPTIMIZATION_LEVEL = "-O";}; name = Release;};
+ A00000000000000000000042 = {isa = XCBuildConfiguration; buildSettings = {CODE_SIGN_ENTITLEMENTS = Palette.entitlements; CODE_SIGN_STYLE = Automatic; COMBINE_HIDPI_IMAGES = YES; CURRENT_PROJECT_VERSION = 1.2; FRAMEWORK_SEARCH_PATHS = ("$(inherited)", "$(PROJECT_DIR)/Vendor/Sparkle"); LD_RUNPATH_SEARCH_PATHS = ("$(inherited)", "@executable_path/../Frameworks"); ENABLE_HARDENED_RUNTIME = YES; GENERATE_INFOPLIST_FILE = NO; INFOPLIST_FILE = Info.plist; PRODUCT_BUNDLE_IDENTIFIER = app.palette.mac; PRODUCT_NAME = "$(TARGET_NAME)"; SWIFT_OPTIMIZATION_LEVEL = "-Onone";}; name = Debug;};
+ A00000000000000000000043 = {isa = XCBuildConfiguration; buildSettings = {CODE_SIGN_ENTITLEMENTS = Palette.entitlements; CODE_SIGN_STYLE = Automatic; COMBINE_HIDPI_IMAGES = YES; CURRENT_PROJECT_VERSION = 1.2; FRAMEWORK_SEARCH_PATHS = ("$(inherited)", "$(PROJECT_DIR)/Vendor/Sparkle"); LD_RUNPATH_SEARCH_PATHS = ("$(inherited)", "@executable_path/../Frameworks"); ENABLE_HARDENED_RUNTIME = YES; GENERATE_INFOPLIST_FILE = NO; INFOPLIST_FILE = Info.plist; PRODUCT_BUNDLE_IDENTIFIER = app.palette.mac; PRODUCT_NAME = "$(TARGET_NAME)"; SWIFT_OPTIMIZATION_LEVEL = "-O";}; name = Release;};
  };
  rootObject = A00000000000000000000001;
 }
