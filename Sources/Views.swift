@@ -21,24 +21,54 @@ struct LibraryView: View {
                     Button { creating = true } label: { Image(systemName: "plus") }.buttonStyle(.borderless).help("New palette")
                 }.padding(16)
                 TextField("Search names or HEX", text: $search).textFieldStyle(.roundedBorder).padding(.horizontal, 12).padding(.bottom, 12)
+                Text("Drag to reorder · Check for menu bar")
+                    .font(.caption).foregroundStyle(.secondary).padding(.horizontal, 12).padding(.bottom, 6)
                 List(selection: $selection) {
                     ForEach(filtered) { palette in
                         VStack(alignment: .leading, spacing: 8) {
-                            Text(palette.name).font(.headline).lineLimit(1)
+                            HStack {
+                                Text(palette.name).font(.headline).lineLimit(1)
+                                Spacer()
+                                Toggle("Show \(palette.name) in menu bar", isOn: Binding(
+                                    get: { palette.showsInMenuBar },
+                                    set: { store.setMenuBarVisibility($0, for: palette.id) }
+                                )).toggleStyle(.checkbox).labelsHidden()
+                                    .help("Show in menu bar")
+                            }
                             HStack(spacing: 3) {
                                 ForEach(Array(palette.colors.prefix(8).enumerated()), id: \.offset) { _, hex in
                                     RoundedRectangle(cornerRadius: 3).fill(Color(hex: hex)).frame(height: 17)
                                 }
                             }
                         }.padding(.vertical, 7).tag(palette.id)
+                        .moveDisabled(!search.isEmpty)
                         .contextMenu {
                             Button("Edit palette") { editing = palette }
                             Button("Copy HEX codes") { copyText(palette.colors.joined(separator: ", ")) }
                             Divider()
+                            Button("Move up") { store.move(palette.id, by: -1) }
+                                .disabled(store.palettes.first?.id == palette.id)
+                            Button("Move down") { store.move(palette.id, by: 1) }
+                                .disabled(store.palettes.last?.id == palette.id)
+                            Divider()
                             Button("Delete…", role: .destructive) { deleting = palette }
                         }
                     }
+                    .onMove { offsets, destination in
+                        guard search.isEmpty else { return }
+                        store.move(from: offsets, to: destination)
+                    }
                 }.listStyle(.sidebar)
+                HStack(spacing: 12) {
+                    Text("Palette order").font(.caption).foregroundStyle(.secondary)
+                    Spacer()
+                    Button { if let selection { store.move(selection, by: -1) } } label: { Image(systemName: "arrow.up") }
+                        .disabled(selected == nil || store.palettes.first?.id == selection)
+                        .help("Move selected palette up").accessibilityLabel("Move selected palette up")
+                    Button { if let selection { store.move(selection, by: 1) } } label: { Image(systemName: "arrow.down") }
+                        .disabled(selected == nil || store.palettes.last?.id == selection)
+                        .help("Move selected palette down").accessibilityLabel("Move selected palette down")
+                }.buttonStyle(.borderless).padding(.horizontal, 12).padding(.vertical, 8)
                 HStack(spacing: 6) {
                     Image(systemName: store.cloudEnabled ? "icloud" : "internaldrive")
                     Text(store.syncStatus)
@@ -200,13 +230,14 @@ struct QuickView: View {
                 Spacer()
                 Button("Open library", action: openLibrary).buttonStyle(.borderless)
             }
-            if store.palettes.isEmpty {
-                Text("Your colors, a click away.").foregroundStyle(.secondary).padding(.vertical, 18)
-                Button("Create your first palette", action: openLibrary)
+            if store.menuBarPalettes.isEmpty {
+                Text(store.palettes.isEmpty ? "Your colors, a click away." : "No palettes selected for the menu bar.")
+                    .foregroundStyle(.secondary).padding(.vertical, 18)
+                Button(store.palettes.isEmpty ? "Create your first palette" : "Choose palettes in library", action: openLibrary)
             } else {
                 ScrollView {
                     VStack(alignment: .leading, spacing: 16) {
-                        ForEach(store.palettes) { palette in
+                        ForEach(store.menuBarPalettes) { palette in
                             VStack(alignment: .leading, spacing: 7) {
                                 HStack {
                                     Text(palette.name).font(.subheadline.weight(.medium)).lineLimit(1)

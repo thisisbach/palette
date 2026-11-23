@@ -12,20 +12,21 @@ import UniformTypeIdentifiers
     private var observer: NSObjectProtocol?
     private var writable = true
     private let prefix = "palette."
-    var palettes: [Palette] { records.filter { !$0.deleted }.sorted { $0.updatedAt > $1.updatedAt } }
+    var palettes: [Palette] { Palette.ordered(records) }
+    var menuBarPalettes: [Palette] { palettes.filter(\.showsInMenuBar) }
 
-    init() {
-        fileURL = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
+    init(fileURL: URL? = nil, enableCloud: Bool = true) {
+        self.fileURL = fileURL ?? FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
             .appendingPathComponent("Palette", isDirectory: true).appendingPathComponent("palettes.json")
         var code: SecStaticCode?
         var info: CFDictionary?
         SecStaticCodeCreateWithPath(Bundle.main.bundleURL as CFURL, [], &code)
         if let code { SecCodeCopySigningInformation(code, SecCSFlags(rawValue: kSecCSSigningInformation), &info) }
         let entitlements = (info as? [String: Any])?[kSecCodeInfoEntitlementsDict as String] as? [String: Any]
-        cloudEnabled = (entitlements?["com.apple.developer.ubiquity-kvstore-identifier"] as? String)?.contains("$(") == false
+        cloudEnabled = enableCloud && (entitlements?["com.apple.developer.ubiquity-kvstore-identifier"] as? String)?.contains("$(") == false
         do {
-            if FileManager.default.fileExists(atPath: fileURL.path) {
-                records = try Palette.validated(JSONDecoder().decode([Palette].self, from: Data(contentsOf: fileURL)))
+            if FileManager.default.fileExists(atPath: self.fileURL.path) {
+                records = try Palette.validated(JSONDecoder().decode([Palette].self, from: Data(contentsOf: self.fileURL)))
             }
         } catch {
             writable = false
@@ -49,13 +50,56 @@ import UniformTypeIdentifiers
     }
 
     func save(name: String, colors: [String], id: UUID? = nil) -> UUID? {
-        let palette = Palette(id: id ?? UUID(), name: name.trimmingCharacters(in: .whitespacesAndNewlines), colors: colors)
+        var palette = id.flatMap { id in records.first { $0.id == id && !$0.deleted } }
+            ?? Palette(name: name, colors: colors, sortOrder: (palettes.map(\.effectiveOrder).max() ?? -1) + 1)
+        // Editing a palette must not change its position or menu bar preference.
+        palette.sortOrder = palette.effectiveOrder
+        palette.name = name.trimmingCharacters(in: .whitespacesAndNewlines)
+        palette.colors = colors
+        palette.updatedAt = Date()
         do { _ = try Palette.validated([palette]) } catch { self.error = error.localizedDescription; return nil }
         var next = records.filter { $0.id != palette.id }
         next.append(palette)
         guard persist(next) else { return nil }
         publishCloud()
         return palette.id
+    }
+
+    func setMenuBarVisibility(_ visible: Bool, for id: UUID) {
+        guard let index = records.firstIndex(where: { $0.id == id && !$0.deleted }),
+              records[index].showsInMenuBar != visible else { return }
+        var next = records
+        next[index].sortOrder = next[index].effectiveOrder
+        next[index].showsInMenuBar = visible
+        next[index].updatedAt = Date()
+        if persist(next) { publishCloud() }
+    }
+
+    func move(from offsets: IndexSet, to destination: Int) {
+        var ordered = palettes
+        guard !offsets.isEmpty, offsets.allSatisfy({ ordered.indices.contains($0) }),
+              (0...ordered.count).contains(destination) else { return }
+        let moving = offsets.map { ordered[$0] }
+        for index in offsets.reversed() { ordered.remove(at: index) }
+        let insertion = destination - offsets.filter { $0 < destination }.count
+        ordered.insert(contentsOf: moving, at: insertion)
+        guard ordered.map(\.id) != palettes.map(\.id) else { return }
+        let positions = Dictionary(uniqueKeysWithValues: ordered.enumerated().map { ($0.element.id, Double($0.offset)) })
+        let now = Date()
+        let next = records.map { record -> Palette in
+            guard let position = positions[record.id], record.sortOrder != position else { return record }
+            var copy = record
+            copy.sortOrder = position
+            copy.updatedAt = now
+            return copy
+        }
+        if persist(next) { publishCloud() }
+    }
+
+    func move(_ id: UUID, by offset: Int) {
+        guard let index = palettes.firstIndex(where: { $0.id == id }),
+              palettes.indices.contains(index + offset) else { return }
+        move(from: IndexSet(integer: index), to: index + offset + (offset > 0 ? 1 : 0))
     }
 
     func delete(_ palette: Palette) {
@@ -119,7 +163,11 @@ import UniformTypeIdentifiers
             let data = try Data(contentsOf: url)
             guard data.count < 5_000_000 else { throw PaletteError.invalidFile }
             var imported = try Palette.validated(JSONDecoder().decode([Palette].self, from: data))
-            for index in imported.indices { imported[index].updatedAt = Date(); imported[index].deleted = false }
+            for index in imported.indices {
+                imported[index].sortOrder = imported[index].effectiveOrder
+                imported[index].updatedAt = Date()
+                imported[index].deleted = false
+            }
             if persist(Palette.merged(records, imported)) { publishCloud() }
         } catch { self.error = error.localizedDescription }
     }

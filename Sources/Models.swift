@@ -6,6 +6,39 @@ struct Palette: Identifiable, Codable, Equatable {
     var colors: [String]
     var updatedAt: Date = Date()
     var deleted: Bool = false
+    var sortOrder: Double? = nil
+    var showsInMenuBar: Bool = true
+
+    // Older palettes retain their previous newest-first order until explicitly moved.
+    var effectiveOrder: Double { sortOrder ?? -updatedAt.timeIntervalSince1970 }
+
+    enum CodingKeys: String, CodingKey {
+        case id, name, colors, updatedAt, deleted, sortOrder, showsInMenuBar
+    }
+
+    init(id: UUID = UUID(), name: String, colors: [String], updatedAt: Date = Date(),
+         deleted: Bool = false, sortOrder: Double? = nil, showsInMenuBar: Bool = true) {
+        self.id = id; self.name = name; self.colors = colors; self.updatedAt = updatedAt
+        self.deleted = deleted; self.sortOrder = sortOrder; self.showsInMenuBar = showsInMenuBar
+    }
+
+    init(from decoder: Decoder) throws {
+        let values = try decoder.container(keyedBy: CodingKeys.self)
+        id = try values.decode(UUID.self, forKey: .id)
+        name = try values.decode(String.self, forKey: .name)
+        colors = try values.decode([String].self, forKey: .colors)
+        updatedAt = try values.decode(Date.self, forKey: .updatedAt)
+        deleted = try values.decode(Bool.self, forKey: .deleted)
+        sortOrder = try values.decodeIfPresent(Double.self, forKey: .sortOrder)
+        showsInMenuBar = try values.decodeIfPresent(Bool.self, forKey: .showsInMenuBar) ?? true
+    }
+
+    static func ordered(_ records: [Palette]) -> [Palette] {
+        records.filter { !$0.deleted }.sorted {
+            if $0.effectiveOrder != $1.effectiveOrder { return $0.effectiveOrder < $1.effectiveOrder }
+            return $0.id.uuidString < $1.id.uuidString
+        }
+    }
 
     static func hex(_ input: String) -> String? {
         var value = input.trimmingCharacters(in: .whitespacesAndNewlines).uppercased()
@@ -20,7 +53,8 @@ struct Palette: Identifiable, Codable, Equatable {
         return try items.map { item in
             guard !item.name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
                   item.name.count <= 100, (1...24).contains(item.colors.count),
-                  item.colors.allSatisfy({ hex($0) != nil }) else { throw PaletteError.invalidFile }
+                  item.colors.allSatisfy({ hex($0) != nil }),
+                  item.sortOrder?.isFinite ?? true else { throw PaletteError.invalidFile }
             var copy = item
             copy.colors = item.colors.compactMap(hex)
             return copy

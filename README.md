@@ -2,11 +2,17 @@
 
 A small native macOS palette library, built with SwiftUI and AppKit. Requires macOS 14 or later. No third-party dependencies.
 
+[Download the latest app release](https://github.com/thisisbach/palette/releases/latest). Unzip the app and drag it into Applications. Release builds support Apple Silicon and Intel, save locally, and are ad-hoc signed without Apple notarization; macOS may require manual approval to open them.
+
 ## Use
 
 Open Palette.app. Create a palette with a name and 1–24 colors. Paste 3- or 6-digit HEX codes (separated by commas, spaces, or newlines), or use the system color picker and click Add color. Click any swatch to copy its HEX code. The menu bar swatch icon gives quick access to all saved palettes. Closing the library keeps the menu bar app running; Quit exits it.
 
 Search by name or HEX, edit or delete palettes, and import/export JSON using the menu at the bottom of the sidebar. Palettes are saved atomically in ~/Library/Application Support/Palette/palettes.json. Export makes a portable backup. The app follows the system light/dark appearance.
+
+Drag palettes in the sidebar to set their display order (clear the search first), or select one and use the up/down buttons below the list. The same order is used in the menu bar. Editing a palette keeps its position; new palettes are added at the end.
+
+Check or uncheck the box beside each palette to choose whether it appears in the menu bar. Unchecked palettes remain in your library. Order and visibility are saved across launches, included in JSON exports, and synced by iCloud in developer-signed builds. Palettes saved by version 1.0 retain their previous order and start checked.
 
 ## Build locally
 
